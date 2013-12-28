@@ -3,79 +3,78 @@
 <html>
 <head>
     <title>Perspectives - LD #23</title>
-
-    <!--
-    	FMJSEngine files
-    -->
-    <script type="text/javascript" src="lib/fm/FMGame.js"></script>
-    <script type="text/javascript" src="lib/fm/FMState.js"></script>
-    <script type="text/javascript" src="lib/fm/FMGameObject.js"></script>
-    <script type="text/javascript" src="lib/fm/FMPreloader.js"></script>
-    <script type="text/javascript" src="lib/fm/FMAssetManager.js"></script>
-    <script type="text/javascript" src="lib/fm/FMAudioAsset.js"></script>
-    <script type="text/javascript" src="lib/fm/FMImageAsset.js"></script>
-    <script type="text/javascript" src="lib/fm/FMFileAsset.js"></script>
-    <script type="text/javascript" src="lib/fm/FMWorld.js"></script>
-    <script type="text/javascript" src="lib/fm/FMTileMap.js"></script>
-    <script type="text/javascript" src="lib/fm/FMPoint.js"></script>
-    <script type="text/javascript" src="lib/fm/FMCircle.js"></script>
-    <script type="text/javascript" src="lib/fm/FMRectangle.js"></script>
-    <script type="text/javascript" src="lib/fm/FMParameters.js"></script>
-    <script type="text/javascript" src="lib/fm/FMKeyboard.js"></script>
-    <script type="text/javascript" src="lib/fm/FMUtils.js"></script>
-
-    <!-- Components -->
-    <script type="text/javascript" src="lib/fm/FMComponent.js"></script>
-    <script type="text/javascript" src="lib/fm/FMComponentTypes.js"></script>
-
-    <!-- Spatial components -->
-    <script type="text/javascript" src="lib/fm/components/spatial/FMSpatialComponent.js"></script>
-
-    <!-- Controller components -->
-    <script type="text/javascript" src="lib/fm/components/controller/FMKeyboardControllerComponent.js"></script>
-    <script type="text/javascript" src="lib/fm/components/controller/FMButtonControllerComponent.js"></script>
-
-    <!-- Physic components -->
-    <script type="text/javascript" src="lib/fm/components/dynamic/FMPhysicComponent.js"></script>
-
-    <!-- Renderer components -->
-    <script type="text/javascript" src="lib/fm/components/renderer/FMSpriteRendererComponent.js"></script>
-    <script type="text/javascript" src="lib/fm/components/renderer/FMAnimatedSpriteRendererComponent.js"></script>
-    <script type="text/javascript" src="lib/fm/components/renderer/FMSimpleShapeRendererComponent.js"></script>
-    <script type="text/javascript" src="lib/fm/components/renderer/FMComplexShapeRendererComponent.js"></script>
-    <script type="text/javascript" src="lib/fm/components/renderer/FMTextRendererComponent.js"></script>
-
-    <!-- Collider components -->
-    <script type="text/javascript" src="lib/fm/components/collider/FMAabbComponent.js"></script>
-    <script type="text/javascript" src="lib/fm/components/collider/FMObbComponent.js"></script>
-
-    <!-- Misc components -->
-    <script type="text/javascript" src="lib/fm/components/sound/FMSoundComponent.js"></script>
-    
-    <script type="text/javascript" src="lib/fm/components/script/FMScriptComponent.js"></script>
     
     <!--
-    	Game files
+    	{FM.js(Engine);}
     -->
-    <script type="text/javascript" src="src/Tests.js"></script>
-    <script type="text/javascript" src="src/Avatar.js"></script>
-    <script type="text/javascript" src="src/MenuState.js"></script>
-    <script type="text/javascript" src="src/PlayState.js"></script>
-    <script type="text/javascript" src="src/EndState.js"></script>
-    <script type="text/javascript" src="src/Parameters.js"></script>
-    
+    <script type="text/javascript" src="lib/fm/fmjsengine-concat.js"></script>
     <!--
-	Level files
+    	Perspectives entry point.
     -->
-    
+    <script>
+        //Include JS files
+        FM.includeJsFile("src/menuState.js");
+        FM.includeJsFile("src/playState.js");
+        FM.includeJsFile("src/endState.js");
+        FM.includeJsFile("src/avatar.js");
+
+        var start = function () {
+            "use strict";
+            //Add assets
+            var assetManager = FM.assetManager,
+                param = FM.parameters;
+            //Debug mode
+            //param.debug = true;
+
+            //Audio
+            if (!assetManager.addAsset("explode", param.AUDIO, "assets/sfx/explode.wav")) {
+                assetManager.addAsset("explode", param.AUDIO, "assets/sfx/explode.mp3");
+            }
+            if (!assetManager.addAsset("fly", param.AUDIO, "assets/sfx/fly.wav")) {
+                assetManager.addAsset("fly", param.AUDIO, "assets/sfx/fly.mp3");
+            }
+            if (!assetManager.addAsset("music", param.AUDIO, "assets/sfx/music.wav")) {
+                assetManager.addAsset("music", param.AUDIO, "assets/sfx/music.mp3");
+            }
+
+            //Images
+            assetManager.addAsset("avatar", param.IMAGE, "assets/gfx/avatar.png");
+            assetManager.addAsset("npc1", param.IMAGE, "assets/gfx/npc1.png");
+            assetManager.addAsset("npc2", param.IMAGE, "assets/gfx/npc2.png");
+            assetManager.addAsset("npc3", param.IMAGE, "assets/gfx/npc3.png");
+            assetManager.addAsset("background", param.IMAGE, "assets/gfx/background.png");
+            assetManager.addAsset("end", param.IMAGE, "assets/gfx/end.png");
+
+            assetManager.addAsset("tileset", param.IMAGE, "assets/gfx/tileset.png");
+            assetManager.addAsset("ground1", param.IMAGE, "assets/gfx/ground.png");
+            assetManager.addAsset("ground2", param.IMAGE, "assets/gfx/ground2.png");
+            assetManager.addAsset("ground3", param.IMAGE, "assets/gfx/ground3.png");
+            assetManager.addAsset("ground4", param.IMAGE, "assets/gfx/ground4.png");
+            assetManager.addAsset("ground5", param.IMAGE, "assets/gfx/ground5.png");
+            assetManager.addAsset("fog", param.IMAGE, "assets/gfx/fog.png");
+
+            //World
+            assetManager.addAsset("world", param.FILE, "world/world.tmx");
+
+            //Load assets
+            assetManager.loadAssets();
+
+            //Specify the folder in which you put {FM.js(engine);}
+            param.libraryDirectory = "lib";
+
+            //Start game
+            FM.game.run("canvas", "Perspectives", 1024, 768, menuState);
+        };
+
+        window.addEventListener("load", start, false);
+    </script>
 </head>
 
 <body style="background-color: black;">
 
 <canvas id="canvas" style="display: block;margin: auto; outline: none;" tabindex='1'>
     <p>
-    	Browser not supported.
-    	Please download one of the following :
+    	This application requires a browser that supports the HTML5 Canvas element.
     </p>
 </canvas>
 
