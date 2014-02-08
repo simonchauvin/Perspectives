@@ -1,216 +1,218 @@
+/*globals FM */
 /**
  * @author Simon Chauvin
  */
-function playState() {
+var playState = function () {
     "use strict";
-    var that = Object.create(FM.state()),
-        player,
-        npc1,
-        npc2,
-        npc3,
-        rendererNpc1,
-        rendererNpc2,
-        rendererNpc3,
-        audioNpc1,
-        audioNpc2,
-        audioNpc3,
-        spatial,
-        renderer,
-        physic,
-        background = null,
-        explodeSnd,
-        music,
-        sound,
-        tileMap,
-        fogMap,
-        groundType = FM.objectType("ground"),
-        playerType = FM.objectType("player"),
-        npcType = FM.objectType("npc");
+    FM.State.apply(this);
 
-    that.init = function () {
-        Object.getPrototypeOf(that).init(2048, 1536);
+    this.player = null;
+    this.npc1 = null;
+    this.npc2 = null;
+    this.npc3 = null;
+    this.rendererNpc1 = null;
+    this.rendererNpc2 = null;
+    this.rendererNpc3 = null;
+    this.audioNpc1 = null;
+    this.audioNpc2 = null;
+    this.audioNpc3 = null;
+    this.spatial = null;
+    this.renderer = null;
+    this.physic = null;
+    this.background = null;
+    this.explodeSnd = null;
+    this.music = null;
+    this.sound = null;
+    this.tileMap = null;
+    this.fogMap = null;
+    this.groundType = new FM.ObjectType("ground");
+    this.playerType = new FM.ObjectType("player");
+    this.npcType = new FM.ObjectType("npc");
+};
+playState.prototype = Object.create(FM.State.prototype);
+/**
+ * 
+ * @returns {undefined}
+ */
+playState.prototype.init = function () {
+    FM.State.prototype.init.apply(this, [2048, 1536]);
 
-        background = FM.gameObject(5);
-        spatial = FM.spatialComponent(0, 0, background);
-        background.addComponent(spatial);
-        renderer = FM.spriteRendererComponent(FM.assetManager.getAssetByName("background"), 2048, 1536, background);
-        that.add(background);
+    this.background = new FM.GameObject(5);
+    this.spatial = this.background.addComponent(new FM.SpatialComponent(0, 0, this.background));
+    this.renderer = this.background.addComponent(new FM.SpriteRendererComponent(FM.AssetManager.getAssetByName("background"), 2048, 1536, this.background));
+    this.add(this.background);
 
-        music = FM.gameObject(0);
-        sound = FM.audioComponent(music);
-        sound.addSound(FM.assetManager.getAssetByName("music"));
-        sound.play("music", 0.5, true);
+    this.music = new FM.GameObject(0);
+    this.sound = this.music.addComponent(new FM.AudioComponent(this.music));
+    this.sound.addSound(FM.AssetManager.getAssetByName("music"));
+    this.sound.play("music", 0.5, true);
 
-        //Loading tmx file
-        var map = FM.tmxMap();
-        map.load(FM.assetManager.getAssetByName("world").getContent());
-        var objects = map.getObjectGroup('objects'),
-            object,
-            path,
-            sap,
-            aPump,
-            i;
-        //Load tiles
-        tileMap = FM.tileMap(FM.assetManager.getAssetByName("tileset"), 32, 24, 64, 64, [groundType], 10, true);
-        that.getWorld().loadTileMap(tileMap, map, "tiles", "ground");
-        //Load fog
-        fogMap = FM.tileMap(FM.assetManager.getAssetByName("tileset"), 32, 24, 64, 64, [], 14, false);
-        that.getWorld().loadTileMap(fogMap, map, "fog", "ground");
-        //Load objects
-        for (i = 0; i < objects.objects.length; i = i + 1) {
-            object = objects.objects[i];
-            //Create avatar
-            if (object.name === "avatar") {
-                player = avatar(object.x, object.y, groundType, playerType);
-                that.add(player);
-                player.renderer.play("idle");
-            } else if (object.type === "npc") {
-                //Create NPCs
-                var npc = FM.gameObject(12);
-                npc.addType(npcType);
-                spatial = FM.spatialComponent(object.x, object.y, npc);
-                if (object.name === "npc1") {
-                    npc1 = npc;
-                    FM.circleComponent(20, npc);
-                    rendererNpc1 = FM.animatedSpriteRendererComponent(FM.assetManager.getAssetByName("npc1"), 46, 63, npc);
-                    rendererNpc1.addAnimation("idle", [0], 30, false);
-                    rendererNpc1.addAnimation("explode", [1, 2, 3, 4], 20, false);
-                    rendererNpc1.play("idle");
-                    audioNpc1 = FM.audioComponent(npc);
-                    audioNpc1.addSound(FM.assetManager.getAssetByName("explode"));
-                } else if (object.name === "npc2") {
-                    npc2 = npc;
-                    FM.circleComponent(20, npc);
-                    rendererNpc2 = FM.animatedSpriteRendererComponent(FM.assetManager.getAssetByName("npc2"), 46, 63, npc);
-                    rendererNpc2.addAnimation("idle", [0], 30, false);
-                    rendererNpc2.addAnimation("explode", [1, 2, 3, 4], 20, false);
-                    rendererNpc2.play("idle");
-                    audioNpc2 = FM.audioComponent(npc);
-                    audioNpc2.addSound(FM.assetManager.getAssetByName("explode"));
-                } else if (object.name === "npc3") {
-                    npc3 = npc;
-                    FM.circleComponent(20, npc);
-                    rendererNpc3 = FM.animatedSpriteRendererComponent(FM.assetManager.getAssetByName("npc3"), 46, 63, npc);
-                    rendererNpc3.addAnimation("idle", [0], 30, false);
-                    rendererNpc3.addAnimation("explode", [1, 2, 3, 4], 20, false);
-                    rendererNpc3.play("idle");
-                    audioNpc3 = FM.audioComponent(npc);
-                    audioNpc3.addSound(FM.assetManager.getAssetByName("explode"));
-                }
-                that.add(npc);
+    //Loading tmx file
+    var map = new FM.TmxMap();
+    map.load(FM.AssetManager.getAssetByName("world").getContent());
+    var objects = map.getObjectGroup('objects'),
+        object,
+        path,
+        sap,
+        aPump,
+        i;
+    //Load tiles
+    this.tileMap = new FM.TileMap(FM.AssetManager.getAssetByName("tileset"), 32, 24, 64, 64, [this.groundType], 10, true);
+    this.getWorld().loadTileMap(this.tileMap, map, "tiles", "ground");
+    //Load fog
+    this.fogMap = new FM.TileMap(FM.AssetManager.getAssetByName("tileset"), 32, 24, 64, 64, [], 14, false);
+    this.getWorld().loadTileMap(this.fogMap, map, "fog", "ground");
+    //Load objects
+    for (i = 0; i < objects.objects.length; i = i + 1) {
+        object = objects.objects[i];
+        //Create avatar
+        if (object.name === "avatar") {
+            this.player = avatar(object.x, object.y, this.groundType, this.playerType);
+            this.add(this.player);
+            this.player.renderer.play("idle");
+        } else if (object.type === "npc") {
+            //Create NPCs
+            var npc = new FM.GameObject(12);
+            npc.addType(this.npcType);
+            this.spatial = npc.addComponent(new FM.SpatialComponent(object.x, object.y, npc));
+            if (object.name === "npc1") {
+                this.npc1 = npc;
+                npc.addComponent(new FM.CircleComponent(20, npc));
+                this.rendererNpc1 = npc.addComponent(new FM.AnimatedSpriteRendererComponent(FM.AssetManager.getAssetByName("npc1"), 46, 63, npc));
+                this.rendererNpc1.addAnimation("idle", [0], 30, false);
+                this.rendererNpc1.addAnimation("explode", [1, 2, 3, 4], 20, false);
+                this.rendererNpc1.play("idle");
+                this.audioNpc1 = npc.addComponent(new FM.AudioComponent(npc));
+                this.audioNpc1.addSound(FM.AssetManager.getAssetByName("explode"));
+            } else if (object.name === "npc2") {
+                this.npc2 = npc;
+                npc.addComponent(new FM.CircleComponent(20, npc));
+                this.rendererNpc2 = npc.addComponent(new FM.AnimatedSpriteRendererComponent(FM.AssetManager.getAssetByName("npc2"), 46, 63, npc));
+                this.rendererNpc2.addAnimation("idle", [0], 30, false);
+                this.rendererNpc2.addAnimation("explode", [1, 2, 3, 4], 20, false);
+                this.rendererNpc2.play("idle");
+                this.audioNpc2 = npc.addComponent(new FM.AudioComponent(npc));
+                this.audioNpc2.addSound(FM.AssetManager.getAssetByName("explode"));
+            } else if (object.name === "npc3") {
+                this.npc3 = npc;
+                npc.addComponent(new FM.CircleComponent(20, npc));
+                this.rendererNpc3 = npc.addComponent(new FM.AnimatedSpriteRendererComponent(FM.AssetManager.getAssetByName("npc3"), 46, 63, npc));
+                this.rendererNpc3.addAnimation("idle", [0], 30, false);
+                this.rendererNpc3.addAnimation("explode", [1, 2, 3, 4], 20, false);
+                this.rendererNpc3.play("idle");
+                this.audioNpc3 = npc.addComponent(new FM.AudioComponent(npc));
+                this.audioNpc3.addSound(FM.AssetManager.getAssetByName("explode"));
             }
+            this.add(npc);
         }
+    }
 
-        that.centerCameraOn(player);
-        that.follow(player, 512, 512);
-        that.sortByZIndex();
-    };
+    this.centerCameraOn(this.player);
+    this.follow(this.player, 512, 512);
+    this.sortByZIndex();
+};
 
-    /**
-    * Update the game
-    */
-    that.update = function (dt) {
-        Object.getPrototypeOf(that).update(dt);
+/**
+* Update the game
+*/
+playState.prototype.update = function (dt) {
+    FM.State.prototype.update.apply(this, [dt]);
+    if (this.sound.currentTime >= this.sound.duration - 1) {
+        this.sound.currentTime = 0;
+    }
 
-        if (sound.currentTime >= sound.duration - 1) {
-            sound.currentTime = 0;
-        }
+    if (this.rendererNpc1.getCurrentAnim() === "explode" && this.rendererNpc1.finished && this.npc1.isVisible()) {
+        this.npc1.kill();
+        this.npc1.hide();
+        this.player.jumpHeight = 1.3;
+    }
 
-        if (rendererNpc1.getCurrentAnim() === "explode" && rendererNpc1.finished && npc1.isVisible()) {
-            npc1.kill();
-            npc1.hide();
-            player.jumpHeight = 1.3;
-        }
+    if (this.rendererNpc2.getCurrentAnim() === "explode" && this.rendererNpc2.finished && this.npc2.isVisible()) {
+        this.npc2.kill();
+        this.npc2.hide();
+        this.player.jumpHeight = 1.6;
+    }
 
-        if (rendererNpc2.getCurrentAnim() === "explode" && rendererNpc2.finished && npc2.isVisible()) {
-            npc2.kill();
-            npc2.hide();
-            player.jumpHeight = 1.6;
-        }
+    if (this.rendererNpc3.getCurrentAnim() === "explode" && this.rendererNpc3.finished && this.npc3.isVisible()) {
+        this.npc3.kill();
+        this.npc3.hide();
+        this.player.jumpHeight = 2;
+    }
 
-        if (rendererNpc3.getCurrentAnim() === "explode" && rendererNpc3.finished && npc3.isVisible()) {
-            npc3.kill();
-            npc3.hide();
-            player.jumpHeight = 2;
-        }
+    if (!this.player.physic.overlapsWithObject(this.npc1.components[FM.ComponentTypes.PHYSIC]) && this.rendererNpc1.getCurrentAnim() !== "explode") {
+        this.rendererNpc1.play("idle");
+    } else if (this.player.physic.overlapsWithObject(this.npc1.components[FM.ComponentTypes.PHYSIC]) && this.rendererNpc1.getCurrentAnim() !== "explode") {
+        this.rendererNpc1.play("explode");
+        this.audioNpc1.play("explode", 0.3, false);
+    }
 
-        if (!player.physic.overlapsWithObject(npc1.components[FM.componentTypes.PHYSIC]) && rendererNpc1.getCurrentAnim() !== "explode") {
-            rendererNpc1.play("idle");
-        } else if (player.physic.overlapsWithObject(npc1.components[FM.componentTypes.PHYSIC]) && rendererNpc1.getCurrentAnim() !== "explode") {
-            rendererNpc1.play("explode");
-            audioNpc1.play("explode", 0.3, false);
-        }
+    if (!this.player.physic.overlapsWithObject(this.npc2.components[FM.ComponentTypes.PHYSIC]) && this.rendererNpc2.getCurrentAnim() !== "explode") {
+        this.rendererNpc2.play("idle");
+    } else if (this.player.physic.overlapsWithObject(this.npc2.components[FM.ComponentTypes.PHYSIC]) && this.rendererNpc2.getCurrentAnim() !== "explode") {
+        this.rendererNpc2.play("explode");
+        this.audioNpc2.play("explode", 0.3, false);
+    }
 
-        if (!player.physic.overlapsWithObject(npc2.components[FM.componentTypes.PHYSIC]) && rendererNpc2.getCurrentAnim() !== "explode") {
-            rendererNpc2.play("idle");
-        } else if (player.physic.overlapsWithObject(npc2.components[FM.componentTypes.PHYSIC]) && rendererNpc2.getCurrentAnim() !== "explode") {
-            rendererNpc2.play("explode");
-            audioNpc2.play("explode", 0.3, false);
-        }
+    if (!this.player.physic.overlapsWithObject(this.npc3.components[FM.ComponentTypes.PHYSIC]) && this.rendererNpc3.getCurrentAnim() !== "explode") {
+        this.rendererNpc3.play("idle");
+    } else if (this.player.physic.overlapsWithObject(this.npc3.components[FM.ComponentTypes.PHYSIC]) && this.rendererNpc3.getCurrentAnim() !== "explode") {
+        this.rendererNpc3.play("explode");
+        this.audioNpc3.play("explode", 0.3, false);
+    }
 
-        if (!player.physic.overlapsWithObject(npc3.components[FM.componentTypes.PHYSIC]) && rendererNpc3.getCurrentAnim() !== "explode") {
-            rendererNpc3.play("idle");
-        } else if (player.physic.overlapsWithObject(npc3.components[FM.componentTypes.PHYSIC]) && rendererNpc3.getCurrentAnim() !== "explode") {
-            rendererNpc3.play("explode");
-            audioNpc3.play("explode", 0.3, false);
-        }
+    this.player.sight = 2 + (1 / this.player.spatial.position.y) * 1000;
 
-        player.sight = 2 + (1 / player.spatial.position.y) * 1000;
-
-        //Lighten the player and around
-        var idxI = Math.floor(player.spatial.position.y / 64),
-            idxJ = Math.floor(player.spatial.position.x / 64),
-            i,
-            data,
-            tile;
-        for (i = 0; i < player.sight; i += 1) {
-            data = fogMap.getData();
-            tile = that.getGameObjectById(data[idxI][idxJ]);
+    //Lighten the player and around
+    var idxI = Math.floor(this.player.spatial.position.y / 64),
+        idxJ = Math.floor(this.player.spatial.position.x / 64),
+        i,
+        data,
+        tile;
+    for (i = 0; i < this.player.sight; i += 1) {
+        data = this.fogMap.getData();
+        tile = this.getGameObjectById(data[idxI][idxJ]);
+        tile.hide();
+        if (data[idxI + i]) {
+            tile = this.getGameObjectById(data[idxI + i][idxJ]);
             tile.hide();
-            if (data[idxI + i]) {
-                tile = that.getGameObjectById(data[idxI + i][idxJ]);
-                tile.hide();
-                if (data[idxI + i][idxJ + i]) {
-                    tile = that.getGameObjectById(data[idxI + i][idxJ + i]);
-                    tile.hide();
-                }
-            }
-            if (data[idxI - i]) {
-                tile = that.getGameObjectById(data[idxI - i][idxJ]);
+            if (data[idxI + i][idxJ + i]) {
+                tile = this.getGameObjectById(data[idxI + i][idxJ + i]);
                 tile.hide();
             }
-            if (data[idxI][idxJ + i]) {
-                tile = that.getGameObjectById(data[idxI][idxJ + i]);
+        }
+        if (data[idxI - i]) {
+            tile = this.getGameObjectById(data[idxI - i][idxJ]);
+            tile.hide();
+        }
+        if (data[idxI][idxJ + i]) {
+            tile = this.getGameObjectById(data[idxI][idxJ + i]);
+            tile.hide();
+            if (data[idxI - i] && data[idxI - i][idxJ + i]) {
+                tile = this.getGameObjectById(data[idxI - i][idxJ + i]);
                 tile.hide();
-                if (data[idxI - i] && data[idxI - i][idxJ + i]) {
-                    tile = that.getGameObjectById(data[idxI - i][idxJ + i]);
-                    tile.hide();
-                }
             }
-            if (data[idxI][idxJ - i]) {
-                tile = that.getGameObjectById(data[idxI][idxJ - i]);
+        }
+        if (data[idxI][idxJ - i]) {
+            tile = this.getGameObjectById(data[idxI][idxJ - i]);
+            tile.hide();
+            if (data[idxI - i] && data[idxI - i][idxJ - i]) {
+                tile = this.getGameObjectById(data[idxI - i][idxJ - i]);
                 tile.hide();
-                if (data[idxI - i] && data[idxI - i][idxJ - i]) {
-                    tile = that.getGameObjectById(data[idxI - i][idxJ - i]);
-                    tile.hide();
-                }
-                if (data[idxI + i] && data[idxI + i][idxJ - i]) {
-                    tile = that.getGameObjectById(data[idxI + i][idxJ - i]);
-                    tile.hide();
-                }
             }
-
-            if (data[idxI][idxJ + i]) {
-                tile = that.getGameObjectById(data[idxI][idxJ + i]);
+            if (data[idxI + i] && data[idxI + i][idxJ - i]) {
+                tile = this.getGameObjectById(data[idxI + i][idxJ - i]);
                 tile.hide();
             }
         }
 
-        //end of the game
-        if (player.spatial.position.y < 300 && player.spatial.position.x < 150) {
-            FM.game.switchState(endState());
+        if (data[idxI][idxJ + i]) {
+            tile = this.getGameObjectById(data[idxI][idxJ + i]);
+            tile.hide();
         }
-    };
+    }
 
-    return that;
-}
+    //end of the game
+    if (this.player.spatial.position.y < 300 && this.player.spatial.position.x < 150) {
+        FM.Game.switchState(new endState());
+    }
+};

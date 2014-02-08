@@ -1,30 +1,29 @@
+/*globals FM */
 /**
  * @author Simon Chauvin
  */
-function endState() {
+var endState = function () {
     "use strict";
-    var that = Object.create(FM.state()),
-        text;
+    FM.State.apply(this);
+    this.text = null;
+};
+endState.prototype = Object.create(FM.State.prototype);
+endState.prototype.init = function () {
+    FM.State.prototype.init.apply(this);
 
-    that.init = function () {
-        Object.getPrototypeOf(that).init();
+    this.text = new FM.GameObject(5);
+    this.text.addComponent(new FM.SpatialComponent(0, 0, this.text));
+    this.text.addComponent(new FM.SpriteRendererComponent(FM.AssetManager.getAssetByName("end"), 1024, 768, this.text));
+    this.add(this.text);
 
-        text = FM.gameObject(5);
-        FM.spatialComponent(0, 0, text);
-        FM.spriteRendererComponent(FM.assetManager.getAssetByName("end"), 1024, 768, text);
-        that.add(text);
+    this.text = new FM.GameObject(99);
+    this.text.addComponent(new FM.SpatialComponent(FM.Game.getScreenWidth() / 2 - 160, 250, this.text));
+    var renderer = this.text.addComponent(new FM.TextRendererComponent("Perspectives", this.text));
+    renderer.setFormat('#fff', '60px sans-serif', 'middle');
+    this.add(this.text);
+};
 
-        text = FM.gameObject(99);
-        FM.spatialComponent(FM.game.getScreenWidth() / 2 - 160, 250, text);
-        var renderer = FM.textRendererComponent("Perspectives", text);
-        renderer.setFormat('#fff', '60px sans-serif', 'middle');
-        that.add(text);
-    };
+endState.prototype.update = function (dt) {
+    FM.State.prototype.update.apply(this, [dt]);
 
-    that.update = function (dt) {
-        Object.getPrototypeOf(that).update(dt);
-
-    };
-
-    return that;
-}
+};

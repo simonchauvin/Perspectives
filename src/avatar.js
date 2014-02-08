@@ -1,15 +1,16 @@
+/*globals FM */
 /**
- * Under Creative Commons Licence
+ * 
  * @author Simon Chauvin
  */
 function avatar(x, y, groundType, playerType) {
     "use strict";
-    var that = Object.create(FM.gameObject(8));
+    var that = new FM.GameObject(8);
 
     //Spatial component
-    that.spatial = FM.spatialComponent(x, y, that);
-    that.renderer = FM.animatedSpriteRendererComponent(FM.assetManager.getAssetByName("avatar"), 46, 63, that);
-    that.physic = FM.aabbComponent(30, 62, that);
+    that.spatial = that.addComponent(new FM.SpatialComponent(x, y, that));
+    that.renderer = that.addComponent(new FM.AnimatedSpriteRendererComponent(FM.AssetManager.getAssetByName("avatar"), 46, 63, that));
+    that.physic = that.addComponent(new FM.AabbComponent(30, 62, that));
     that.physic.offset.x = 8;
     that.physic.addTypeToCollideWith(groundType);
     that.physic.mass = 10;
@@ -26,8 +27,8 @@ function avatar(x, y, groundType, playerType) {
     that.jumpHeight = 1;
     that.sight = 3;
 
-    that.audio = FM.audioComponent(that);
-    that.audio.addSound(FM.assetManager.getAssetByName("fly"));
+    that.audio = that.addComponent(new FM.AudioComponent(that));
+    that.audio.addSound(FM.AssetManager.getAssetByName("fly"));
 
     //Animations
     that.renderer.addAnimation("idle", [0], 30, false);
@@ -41,7 +42,7 @@ function avatar(x, y, groundType, playerType) {
     * Update the avatar
     */
     that.update = function (dt) {
-        if (FM.game.isKeyPressed(FM.keyboard.UP)) {
+        if (FM.Game.isKeyPressed(FM.Keyboard.UP)) {
             if (jumpTime < 0.2) {
                 if (!that.audio.isPlaying("fly")) {
                     that.audio.play("fly", 0.3, false);
@@ -70,15 +71,15 @@ function avatar(x, y, groundType, playerType) {
             that.renderer.play("fly");
         }
 
-        if (FM.game.isKeyPressed(FM.keyboard.LEFT)) {
+        if (FM.Game.isKeyPressed(FM.Keyboard.LEFT)) {
             that.physic.acceleration.x = -800;
         }
 
-        if (FM.game.isKeyPressed(FM.keyboard.RIGHT)) {
+        if (FM.Game.isKeyPressed(FM.Keyboard.RIGHT)) {
             that.physic.acceleration.x = 800;
         }
 
-        if (!FM.game.isKeyPressed(FM.keyboard.LEFT) && !FM.game.isKeyPressed(FM.keyboard.RIGHT)) {
+        if (!FM.Game.isKeyPressed(FM.Keyboard.LEFT) && !FM.Game.isKeyPressed(FM.Keyboard.RIGHT)) {
             that.physic.acceleration.x = 0;
             if (that.physic.velocity.x === 0 && that.physic.velocity.y === 0) {
                 that.renderer.play("idle");

@@ -1,55 +1,53 @@
+/*globals FM */
 /**
  * @author Simon Chauvin
  */
-function menuState() {
+var menuState = function () {
     "use strict";
-    var that = Object.create(FM.state()),
-        text = null;
+    FM.State.apply(this);
+    this.text = null;
+};
+menuState.prototype = Object.create(FM.State.prototype);
+menuState.prototype.constructor = menuState;
+/**
+ * 
+ */
+menuState.prototype.init = function () {
+    FM.State.prototype.init.call(this);
 
-    /**
-     * 
-     * @returns {undefined}
-     */
-    that.init = function () {
-        Object.getPrototypeOf(that).init();
+    this.text = new FM.GameObject(99);
+    this.text.addComponent(new FM.SpatialComponent(FM.Game.getScreenWidth() / 2 - 160, 250, this.text));
+    var renderer = this.text.addComponent(new FM.TextRendererComponent("Perspectives", this.text));
+    renderer.setFormat('#fff', '60px sans-serif', 'middle');
+    this.add(this.text);
 
-        text = FM.gameObject(99);
-        FM.spatialComponent(FM.game.getScreenWidth() / 2 - 160, 250, text);
-        var renderer = FM.textRendererComponent("Perspectives", text);
-        renderer.setFormat('#fff', '60px sans-serif', 'middle');
-        that.add(text);
+    this.text = new FM.GameObject(99);
+    this.text.addComponent(new FM.SpatialComponent(FM.Game.getScreenWidth() / 2 - 120, 512, this.text));
+    renderer = this.text.addComponent(new FM.TextRendererComponent("Press Enter to play", this.text));
+    renderer.setFormat('#fff', '30px sans-serif', 'middle');
+    this.add(this.text);
 
-        text = FM.gameObject(99);
-        FM.spatialComponent(FM.game.getScreenWidth() / 2 - 120, 512, text);
-        renderer = FM.textRendererComponent("Press Enter to play", text);
-        renderer.setFormat('#fff', '30px sans-serif', 'middle');
-        that.add(text);
+    this.text = new FM.GameObject(99);
+    this.text.addComponent(new FM.SpatialComponent(FM.Game.getScreenWidth() / 2 - 150, 600, this.text));
+    renderer = this.text.addComponent(new FM.TextRendererComponent("A game created by Simon Chauvin", this.text));
+    renderer.setFormat('#fff', '20px sans-serif', 'middle');
+    this.add(this.text);
 
-        text = FM.gameObject(99);
-        FM.spatialComponent(FM.game.getScreenWidth() / 2 - 150, 600, text);
-        renderer = FM.textRendererComponent("A game created by Simon Chauvin", text);
-        renderer.setFormat('#fff', '20px sans-serif', 'middle');
-        that.add(text);
+    this.text = new FM.GameObject(99);
+    this.text.addComponent(new FM.SpatialComponent(FM.Game.getScreenWidth() / 2 - 40, 650, this.text));
+    renderer = this.text.addComponent(new FM.TextRendererComponent("Ludum Dare 23", this.text));
+    renderer.setFormat('#fff', '10px sans-serif', 'middle');
+    this.add(this.text);
+};
 
-        text = FM.gameObject(99);
-        FM.spatialComponent(FM.game.getScreenWidth() / 2 - 40, 650, text);
-        renderer = FM.textRendererComponent("Ludum Dare 23", text);
-        renderer.setFormat('#fff', '10px sans-serif', 'middle');
-        that.add(text);
-    };
+/**
+ * 
+ * @param {type} dt
+ */
+menuState.prototype.update = function (dt) {
+    FM.State.prototype.update.call(this, dt);
 
-    /**
-     * 
-     * @param {type} dt
-     * @returns {undefined}
-     */
-    that.update = function (dt) {
-        Object.getPrototypeOf(that).update(dt);
-
-        if (FM.game.isKeyReleased(FM.keyboard.ENTER) || FM.game.isMouseClicked()) {
-            FM.game.switchState(playState());
-        }
-    };
-
-    return that;
-}
+    if (FM.Game.isKeyReleased(FM.Keyboard.ENTER) || FM.Game.isMouseClicked()) {
+        FM.Game.switchState(new playState());
+    }
+};

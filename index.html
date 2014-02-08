@@ -7,7 +7,7 @@
     <!--
     	{FM.js(Engine);}
     -->
-    <script type="text/javascript" src="lib/fm/fmjsengine-concat.js"></script>
+    <script type="text/javascript" src="lib/fm/fmjsengine-min.js"></script>
     <!--
     	Perspectives entry point.
     -->
@@ -21,8 +21,8 @@
         var start = function () {
             "use strict";
             //Add assets
-            var assetManager = FM.assetManager,
-                param = FM.parameters;
+            var assetManager = FM.AssetManager,
+                param = FM.Parameters;
             //Debug mode
             //param.debug = true;
 
@@ -59,11 +59,8 @@
             //Load assets
             assetManager.loadAssets();
 
-            //Specify the folder in which you put {FM.js(engine);}
-            param.libraryDirectory = "lib";
-
             //Start game
-            FM.game.run("canvas", "Perspectives", 1024, 768, menuState);
+            FM.Game.run("canvas", "Perspectives", 1024, 768, new menuState());
         };
 
         window.addEventListener("load", start, false);
