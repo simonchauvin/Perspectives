@@ -49,7 +49,7 @@ playState.prototype.init = function () {
 
     //Loading tmx file
     var map = new FM.TmxMap();
-    map.load(FM.AssetManager.getAssetByName("world").getContent());
+    map.load(FM.AssetManager.getAssetByName("world").content);
     var objects = map.getObjectGroup('objects'),
         object,
         path,
